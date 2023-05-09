@@ -4,50 +4,48 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hello_World
+namespace SistemaBanco
 {
     class Program
     {
-        enum Opcao {Jogar=1, Rank, Créditos, Sair }
+        static void depositar()
+        {
+            Console.WriteLine("Depositando: R$" + 100);
+            
+        }
+
+        //enum Opcao {Jogar=1, Rank, Créditos, Sair }
         static void Main(string[] args)
         {
-            Console.Title = "Show do Milhão"; //Define o texto na barra de cima da janela.
+            Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
 
-            gerarMenu();
+            string[] opcoes = {"", "Deposito", "Saque", "Extrato", "Sair" };
+
+            gerarMenu(opcoes);
             Console.Write("\n>> ");
-            string resp = Console.ReadLine();
+            string opcaoEscolhida = Console.ReadLine();
 
+            //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
+            Dictionary<string, Action> operacoes = new Dictionary<string, Action>();
 
-            try {
-                Opcao opcaoEscolhida = (Opcao)int.Parse(resp);
-            }
-            catch (Exception ex)
-            {
-                if (resp.ToLower() == Opcao.Jogar.ToString().ToLower())
-                {
-                   
-                    Console.WriteLine("git".ToUpper());
+            operacoes.Add("Deposito", () => depositar());
 
-                }
-            }
-
-            //string resp = Opcao.Jogar.ToString();
-            //Console.WriteLine(resp);
-
-
+            operacoes["Deposito"]();
 
             Console.ReadLine();
         }
 
-        static void gerarMenu()
+
+
+        static void gerarMenu(string[]opcoes)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine("Seja Bem-Vinde ao \nSHOW DO MILHAO 2023\n");
+            Console.WriteLine("Seja Bem-Vindo ao \nBanco AEIOU\n");
             Console.WriteLine("Menu de opções:");
                 
-            for(int i=1;i <= (int)Opcao.Sair; i++)
+            for(int i=1;i < opcoes.Length; i++)
             {
-                Console.WriteLine(" " + i + "-" + (Opcao)i );
+                Console.WriteLine((i) + " - " + opcoes[i]);
             }
         }
     }

@@ -1,0 +1,8 @@
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\bin\Debug\Hello World.exe.config
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\bin\Debug\Hello World.exe
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\bin\Debug\Hello World.pdb
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\SistemaBanco.csproj.AssemblyReference.cache
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\SistemaBanco.csproj.SuggestedBindingRedirects.cache
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\SistemaBanco.csproj.CoreCompileInputs.cache
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\Hello World.exe
+D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\Hello World.pdb
