@@ -17,18 +17,19 @@ namespace Hello_World
             Console.Write("\n>> ");
             string resp = Console.ReadLine();
 
-            /*try {
+
+            try {
                 Opcao opcaoEscolhida = (Opcao)int.Parse(resp);
             }
             catch (Exception ex)
             {
-                switch (resp)
+                if (resp.ToLower() == Opcao.Jogar.ToString().ToLower())
                 {
-                    case Opcao.ToString(Opcao.Jogar):
-                        Console.WriteLine("git".ToUpper());
+                   
+                    Console.WriteLine("git".ToUpper());
 
                 }
-            }*/
+            }
 
             //string resp = Opcao.Jogar.ToString();
             //Console.WriteLine(resp);
