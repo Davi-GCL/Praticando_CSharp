@@ -6,3 +6,10 @@ D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando
 D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\SistemaBanco.csproj.CoreCompileInputs.cache
 D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\Hello World.exe
 D:\Downloads\exercicios\Tecnico Dev_Sistemas\Programacao\Programas_C#\Praticando_CSharp\Hello World\Hello World\obj\Debug\Hello World.pdb
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\bin\Debug\Hello World.exe.config
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\bin\Debug\Hello World.exe
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\bin\Debug\Hello World.pdb
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\obj\Debug\SistemaBanco.csproj.AssemblyReference.cache
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\obj\Debug\SistemaBanco.csproj.CoreCompileInputs.cache
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\obj\Debug\Hello World.exe
+C:\Users\1252.332\Desktop\CSharp\Praticando_CSharp\Hello World\Hello World\obj\Debug\Hello World.pdb

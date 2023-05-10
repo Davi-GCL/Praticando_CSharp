@@ -8,34 +8,41 @@ namespace SistemaBanco
 {
     class Program
     {
-        static void depositar()
-        {
-            Console.WriteLine("Depositando: R$" + 100);
-            
-        }
 
         //enum Opcao {Jogar=1, Rank, Créditos, Sair }
         static void Main(string[] args)
         {
-            Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
 
             string[] opcoes = {"", "Deposito", "Saque", "Extrato", "Sair" };
-
-            gerarMenu(opcoes);
-            Console.Write("\n>> ");
-            string opcaoEscolhida = Console.ReadLine();
 
             //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
             Dictionary<string, Action> operacoes = new Dictionary<string, Action>();
 
-            operacoes.Add("Deposito", () => depositar());
+            operacoes.Add("deposito", () => depositar());
+            operacoes.Add("saque", () => sacar());
+            operacoes.Add("extrato", () => gerarExtrato());
 
-            operacoes["Deposito"]();
+            Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
+            
+            gerarMenu(opcoes);
+            Console.Write("\n>> ");
+            string opcaoEscolhida = Console.ReadLine();
+
+            try
+            {
+                opcaoEscolhida = opcoes[int.Parse(opcaoEscolhida)].ToLower();
+                Console.WriteLine(opcaoEscolhida);
+            }
+            catch (Exception ex)
+            {
+                opcaoEscolhida = opcaoEscolhida.ToLower();
+            }
+
+            try { operacoes[opcaoEscolhida](); }
+            catch { Console.WriteLine("Digite uma opção valida!"); }
 
             Console.ReadLine();
         }
-
-
 
         static void gerarMenu(string[]opcoes)
         {
@@ -47,6 +54,31 @@ namespace SistemaBanco
             {
                 Console.WriteLine((i) + " - " + opcoes[i]);
             }
+        }
+
+        static void depositar()
+        {
+            Console.Write("Digite o valor que deseja depositar: R$");
+            
+            if (true){
+                Console.WriteLine("Depositando:");
+            }
+
+        }
+
+        static void sacar()
+        {
+            Console.WriteLine("Sacando dindin");
+        }
+
+        static void gerarExtrato()
+        {
+            Console.WriteLine("Gerando extrato...");
+        }
+
+        static void sair()
+        {
+            Console.WriteLine("Fechando a interface");
         }
     }
 }
