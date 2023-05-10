@@ -6,21 +6,27 @@ using System.Threading.Tasks;
 
 namespace SistemaBanco
 {
+    class Informacoes
+    {
+        public int agencia { get; set; }
+        public string codConta { get; set; }
+    }
     class Program
     {
 
         //enum Opcao {Jogar=1, Rank, Créditos, Sair }
         static void Main(string[] args)
         {
-
             string[] opcoes = {"", "Deposito", "Saque", "Extrato", "Sair" };
+            
+            Informacoes Usuario = new Informacoes();
 
             //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
-            Dictionary<string, Action> operacoes = new Dictionary<string, Action>();
+            Dictionary<string, Action<Informacoes>> operacoes = new Dictionary<string, Action<Informacoes>>();
 
-            operacoes.Add("deposito", () => depositar());
-            operacoes.Add("saque", () => sacar());
-            operacoes.Add("extrato", () => gerarExtrato());
+            operacoes.Add("deposito", (p) => depositar(p));
+            operacoes.Add("saque", (p) => sacar(p));
+            operacoes.Add("extrato", (p) => gerarExtrato(p));
 
             Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
             
@@ -37,8 +43,8 @@ namespace SistemaBanco
             {
                 opcaoEscolhida = opcaoEscolhida.ToLower();
             }
-
-            try { operacoes[opcaoEscolhida](); }
+            Usuario.agencia = 102;
+            try { operacoes[opcaoEscolhida](Usuario); }
             catch { Console.WriteLine("Digite uma opção valida!"); }
 
             Console.ReadLine();
@@ -56,27 +62,46 @@ namespace SistemaBanco
             }
         }
 
-        static void depositar()
+        //Algoritmo para o usuario realizar o "deposito", recebe como parametro o ponteiro para o local da memoria do objeto passado.
+        static void depositar(Informacoes Usuario)
         {
-            Console.Write("Digite o valor que deseja depositar: R$");
-            
-            if (true){
-                Console.WriteLine("Depositando:");
-            }
+            int intAgencia;
+            bool isValid;
+            string resp;
 
+            Console.Clear();
+            Console.WriteLine("Digite as informaçoes da conta:");
+
+        //Recebe a resposta do usuario e verifica se é valida
+            Console.Write("Agência: ");
+            do {
+                resp = Console.ReadLine();
+                isValid = int.TryParse(resp, out intAgencia);
+                if (isValid == false)
+                {
+                    Console.Write("\nAgência invalida!\nDigite novamente: ");
+                }
+            } while (isValid == false);
+
+            Usuario.agencia = intAgencia;
+
+        //Recebe o numero da conta
+            Console.Write("Número da conta: ");
+
+            
         }
 
-        static void sacar()
+        static void sacar(Informacoes p)
         {
             Console.WriteLine("Sacando dindin");
         }
 
-        static void gerarExtrato()
+        static void gerarExtrato(Informacoes p)
         {
             Console.WriteLine("Gerando extrato...");
         }
 
-        static void sair()
+        static void sair(Informacoes p)
         {
             Console.WriteLine("Fechando a interface");
         }
