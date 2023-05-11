@@ -10,6 +10,7 @@ namespace SistemaBanco
     {
         public int agencia { get; set; }
         public string codConta { get; set; }
+        public int saldo { get; set; }
     }
     class Program
     {
@@ -66,7 +67,7 @@ namespace SistemaBanco
         static void depositar(Informacoes Usuario)
         {
             int intAgencia;
-            bool isValid;
+            bool? isValid;
             string resp;
 
             Console.Clear();
@@ -87,8 +88,28 @@ namespace SistemaBanco
 
         //Recebe o numero da conta
             Console.Write("Número da conta: ");
-            resp = Console.ReadLine();
-            
+            do
+            {
+                isValid = null;
+                resp = Console.ReadLine();
+                
+                foreach (char chr in resp)
+                {
+                    if (int.TryParse(chr.ToString(), out int numero) != true)
+                    {
+                        isValid = false;
+                        Console.Write("Número de conta invalido! Digite novamente: ");
+                        break;
+                    }
+                }
+                
+            }while (isValid == false);
+
+            Usuario.codConta = resp;
+
+            //Entrada do valor do deposito
+            Console.Write("\nInforme a quantidade que deseja depositar: R$");
+            Usuario.saldo = int.Parse(Console.ReadLine()) ;
         }
 
         static void sacar(Informacoes p)
