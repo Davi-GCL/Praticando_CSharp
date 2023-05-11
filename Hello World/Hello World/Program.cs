@@ -67,6 +67,7 @@ namespace SistemaBanco
         static void depositar(Informacoes Usuario)
         {
             int intAgencia;
+            decimal deposito;
             bool? isValid;
             string resp;
 
@@ -78,10 +79,7 @@ namespace SistemaBanco
             do {
                 resp = Console.ReadLine();
                 isValid = int.TryParse(resp, out intAgencia);
-                if (isValid == false)
-                {
-                    Console.Write("\nAgência invalida!\nDigite novamente: ");
-                }
+                if (isValid == false) {Console.Write("\nAgência invalida!\nDigite novamente: ");}
             } while (isValid == false);
 
             Usuario.agencia = intAgencia;
@@ -95,7 +93,7 @@ namespace SistemaBanco
                 
                 foreach (char chr in resp)
                 {
-                    if (int.TryParse(chr.ToString(), out int numero) != true)
+                    if ((int.TryParse(chr.ToString(), out int numero) != true) && (chr.ToString() != "-"))
                     {
                         isValid = false;
                         Console.Write("Número de conta invalido! Digite novamente: ");
@@ -109,7 +107,13 @@ namespace SistemaBanco
 
             //Entrada do valor do deposito
             Console.Write("\nInforme a quantidade que deseja depositar: R$");
-            Usuario.saldo = int.Parse(Console.ReadLine()) ;
+            do
+            {
+                resp = Console.ReadLine();
+                deposito = decimal.Parse(resp);
+                if (isValid == false) { Console.Write("\nAgência invalida!\nDigite novamente: "); }
+            } while (isValid == false);
+            Console.WriteLine(deposito);
         }
 
         static void sacar(Informacoes p)
