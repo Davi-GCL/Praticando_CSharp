@@ -87,7 +87,7 @@ namespace SistemaBanco
 
         //Recebe o numero da conta
             Console.Write("Número da conta: ");
-
+            resp = Console.ReadLine();
             
         }
 
