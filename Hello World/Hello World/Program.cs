@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
-using System.Xml.Linq;
+
 
 //IDEIAS:
-//  -Fazer com o que o valor da propriedade Informacoes.saldo só possa ser alterado através de um metodo do objeto, que receberá a senha digitada e valor a ser retirado. Se a senha for autentica, acessa e modifica o valor do saldo;
+//  X-Fazer com o que o valor da propriedade Informacoes.saldo só possa ser alterado através de um metodo do objeto, que receberá a senha digitada e valor a ser retirado. Se a senha for autentica, acessa e modifica o valor do saldo;
 //  -Salvar as informações de usuarios cadastrados e sua movimentações em tabelas num banco de dados;
-//  -Gerar um arquivo como relatório do extrato bancario;
+//  X-Gerar um arquivo como relatório do extrato bancario;
 
 namespace SistemaBanco
 {
@@ -47,12 +48,12 @@ namespace SistemaBanco
             if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
             {
                 this.saldo += valor;
-                this.historico.Enqueue("+ R$" + valor.ToString());
+                this.historico.Enqueue("+R$" + valor.ToString());
             }
             else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase)) 
             {
                 this.saldo -= valor;
-                this.historico.Enqueue("- R$" + valor.ToString());
+                this.historico.Enqueue("-R$" + valor.ToString());
             }
         }
     }
@@ -74,6 +75,7 @@ namespace SistemaBanco
             operacoes.Add("deposito", (p) => depositar(p));
             operacoes.Add("saque", (p) => sacar(p));
             operacoes.Add("extrato", (p) => gerarExtrato(p));
+            operacoes.Add("sair", (p) => sair(p));
 
             Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
 
@@ -101,7 +103,7 @@ namespace SistemaBanco
                     Console.WriteLine(ERR.Message);
                 }
 
-                Console.WriteLine($"Relatorio final: Agencia{Usuario.agencia}, Conta{Usuario.codConta}, Saldo{Usuario.saldo}");
+                Console.WriteLine($"Relatorio final: Agência{Usuario.agencia}, Conta{Usuario.codConta}, Saldo{Usuario.saldo}");
 
                 Console.ReadLine();
             }while (encerrar == false);
@@ -224,8 +226,9 @@ namespace SistemaBanco
             {
                 resp = Console.ReadLine();
                 if (Usuario.acessSenha(resp)) 
-                { 
-                    Console.WriteLine("Parabens!");
+                {
+                    Console.WriteLine("Sacando dindin");
+                    Usuario.movimentarSaldo("saque", valSaque);
                     isValid = true;
                 }
                 else 
@@ -235,23 +238,23 @@ namespace SistemaBanco
                 }
             } while (isValid==false);
 
-            Usuario.movimentarSaldo("saque",valSaque);
-            Console.WriteLine("Sacando dindin");
             //Fazer algoritmo para gerar um arquivo de nota 
             return false;
         }
     // </sacar>
         static bool gerarExtrato(ContaBancaria Usuario)
         {
-            string nomeArquivo = "extrato.xml";
-            string diretorioAtual = Environment.CurrentDirectory;
+            DateTime dataAtual = DateTime.Now;
+            string nomeArquivo = dataAtual.ToString("dd-MM-yyyy") + "_extrato.xml";
+            string diretorioAtual = Environment.CurrentDirectory; //Pega o caminho da pasta em que o codigo está sendo executado.
             string caminhoCompleto = Path.Combine(diretorioAtual, nomeArquivo);
+
 
             XmlDocument xmlDoc = new XmlDocument();
 
             xmlDoc.AppendChild(xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null));
 
-            XmlElement rootElement = xmlDoc.CreateElement("root");
+            XmlElement rootElement = xmlDoc.CreateElement("xml");
             xmlDoc.AppendChild(rootElement);
 
             XmlElement header = xmlDoc.CreateElement("Cabecalho");
@@ -266,16 +269,16 @@ namespace SistemaBanco
             numAgencia.InnerText = Usuario.agencia;
             header.AppendChild(numAgencia);
 
-            XmlElement body = xmlDoc.CreateElement("Corpo");
-            body.InnerXml = $"<saldo>{Usuario.saldo}</saldo>";
+            XmlElement body = xmlDoc.CreateElement("Transacoes");
+            body.SetAttribute("DataExped", dataAtual.ToString("dd/MM/yyyy"));
             rootElement.AppendChild(body);
 
             foreach(string aux in Usuario.historico)
             {
-                body.InnerXml += $"<br>{aux}</br>";
+                body.InnerXml += $"<br data=\"{dataAtual.ToString("HH:mm dd/MM")} \">{aux}</br>";
                 
             }
-
+            body.InnerXml += $"<saldoAtual>{Usuario.saldo}</saldoAtual>";
             xmlDoc.Save(caminhoCompleto);
 
             return false;
