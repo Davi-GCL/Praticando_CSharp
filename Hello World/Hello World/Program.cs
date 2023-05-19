@@ -63,8 +63,15 @@ namespace SistemaBanco
 
         //enum Opcao {Jogar=1, Rank, Créditos, Sair }
         static bool encerrar = false;
+
         static void Main(string[] args)
         {
+
+            //Consultar test = new Consultar();
+            //test.LerTabela();
+
+            Console.ReadLine();
+
             string[] opcoes = { "", "Deposito", "Saque", "Transferencia", "Extrato", "Sair" };
 
             ContaBancaria Usuario = new ContaBancaria();
@@ -107,6 +114,7 @@ namespace SistemaBanco
 
                 Console.ReadLine();
             }while (encerrar == false);
+
         }
 
         static void gerarMenu(string[]opcoes)
@@ -245,7 +253,7 @@ namespace SistemaBanco
         static bool gerarExtrato(ContaBancaria Usuario)
         {
             DateTime dataAtual = DateTime.Now;
-            string nomeArquivo = dataAtual.ToString("dd-MM-yyyy") + "_extrato.xml";
+            string nomeArquivo = $"{dataAtual.ToString("dd-MM-yyyy")}_{Usuario.codConta.ToString()}_extrato.xml";
             string diretorioAtual = Environment.CurrentDirectory; //Pega o caminho da pasta em que o codigo está sendo executado.
             string caminhoCompleto = Path.Combine(diretorioAtual, nomeArquivo);
 
@@ -275,7 +283,7 @@ namespace SistemaBanco
 
             foreach(string aux in Usuario.historico)
             {
-                body.InnerXml += $"<br data=\"{dataAtual.ToString("HH:mm dd/MM")} \">{aux}</br>";
+                body.InnerXml += $"<p data=\"{dataAtual.ToString("HH:mm dd/MM")} \">{aux}</p>";
                 
             }
             body.InnerXml += $"<saldoAtual>{Usuario.saldo}</saldoAtual>";

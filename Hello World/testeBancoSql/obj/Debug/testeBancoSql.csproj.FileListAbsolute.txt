@@ -1,0 +1,8 @@
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\bin\Debug\testeBancoSql.exe.config
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\bin\Debug\testeBancoSql.exe
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\bin\Debug\testeBancoSql.pdb
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\obj\Debug\testeBancoSql.csproj.AssemblyReference.cache
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\obj\Debug\testeBancoSql.csproj.SuggestedBindingRedirects.cache
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\obj\Debug\testeBancoSql.csproj.CoreCompileInputs.cache
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\obj\Debug\testeBancoSql.exe
+C:\Users\davi.lemos\Desktop\Projetos_C#\Praticando_CSharp\Hello World\testeBancoSql\obj\Debug\testeBancoSql.pdb

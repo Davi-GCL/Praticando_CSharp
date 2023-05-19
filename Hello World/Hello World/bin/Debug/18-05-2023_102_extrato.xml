@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Cabecalho>
+    <Conta>102</Conta>
+    <Agencia>1</Agencia>
+  </Cabecalho>
+  <Transacoes DataExped="18/05/2023">
+    <p data="16:11 18/05 ">+R$280,78</p>
+    <p data="16:11 18/05 ">+R$100</p>
+    <p data="16:11 18/05 ">-R$50</p>
+    <saldoAtual>330,78</saldoAtual>
+  </Transacoes>
+</xml>
