@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 
 namespace SistemaBanco
 {
-    public class Consultar
+    public class ConsultaSql
     {
         ConexaoSql conexao = new ConexaoSql();
 
@@ -35,7 +35,22 @@ namespace SistemaBanco
             reader.Close();
             conexao.Desconectar();
 
-            Console.ReadLine();
+        }
+
+        public int RegistrarMov(string idConta, decimal valor, string tipo, string dataHora)
+        {
+            int idUsuario = 2;
+            //Criacao do comando para o sql executar
+            cmd.CommandText = $"insert into dbo.mov (idConta,dataHora,valor,tipo,idUsuario) values ({idConta},{dataHora},{valor},{tipo},{idUsuario})";
+
+            //Atribui o endereco do banco de dados onde serão executados os comandos
+            cmd.Connection = conexao.Conectar();
+
+            int rows = cmd.ExecuteNonQuery();
+
+            conexao.Desconectar();
+
+            return rows;
+        }
     }
-}
 }

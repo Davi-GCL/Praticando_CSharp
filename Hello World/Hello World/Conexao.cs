@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Text;
+
 
 
 namespace SistemaBanco
@@ -11,7 +11,7 @@ namespace SistemaBanco
         SqlConnection conn = new SqlConnection();
         public ConexaoSql()
         {
-            conn.ConnectionString = @"Data Source=OPERACIONAL39\SQLEXPRESS;Initial Catalog=teste_db;Persist Security Info=True;User ID=sa;Password=root";
+            conn.ConnectionString = @"Data Source=OPERACIONAL39\SQLEXPRESS;Initial Catalog=sitema_banco;Persist Security Info=True;User ID=sa;Password=root";
         }
 
         public SqlConnection Conectar()

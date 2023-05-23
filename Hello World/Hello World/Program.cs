@@ -18,9 +18,11 @@ namespace SistemaBanco
 {
     class ContaBancaria
     {
-        public string agencia;
+        private ConsultaSql conexao = new ConsultaSql();
 
         public string codConta;
+        
+        public string agencia;
 
         public decimal saldo { get; private set; } //Esta proprieda pode ser acessada fora da classe, mas só pode ser modificada por metodos de dentro da classe;
 
@@ -42,7 +44,7 @@ namespace SistemaBanco
             }
         }
 
-        public void movimentarSaldo(string tipo, decimal valor)
+        /*public void movimentarSaldo(string tipo, decimal valor)
         {
 
             if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
@@ -55,6 +57,26 @@ namespace SistemaBanco
                 this.saldo -= valor;
                 this.historico.Enqueue("-R$" + valor.ToString());
             }
+
+        }*/
+
+        //Sobrecarga do metodo de movimentar saldo que atualiza o registro no banco de dados
+        public void movimentarSaldo(string tipo, decimal valor)
+        {
+
+            if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
+            {
+                this.saldo += valor;
+                this.historico.Enqueue("+R$" + valor.ToString());
+            }
+            else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase))
+            {
+                this.saldo -= valor;
+                this.historico.Enqueue("-R$" + valor.ToString());
+            }
+
+            Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
+
         }
     }
 
@@ -67,10 +89,8 @@ namespace SistemaBanco
         static void Main(string[] args)
         {
 
-            //Consultar test = new Consultar();
+            //ConsultaSql test = new ConsultaSql();
             //test.LerTabela();
-
-            Console.ReadLine();
 
             string[] opcoes = { "", "Deposito", "Saque", "Transferencia", "Extrato", "Sair" };
 
