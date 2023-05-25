@@ -76,7 +76,47 @@ namespace SistemaBanco
             }
 
             Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
+            
+        }
 
+        public void transferirSaldo(string remetente, decimal valor, string destinatario)
+        {
+            decimal sqlSaldo = new decimal();
+            SqlCommand cmd = new SqlCommand();
+            cmd.CommandText = $"select saldo from dbo.contas where codConta={remetente}";
+            conexao.conexao.Conectar();
+
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                sqlSaldo = (decimal)reader.GetSqlMoney(0);
+            }
+
+            if(sqlSaldo < valor)
+            {
+                Console.WriteLine("Saldo insuficiente!");
+            }
+            else
+            {
+                //Retirando o valor da conta do remetente
+                cmd.CommandText = "update dbo.contas set saldo -= @valor where codConta = @idConta";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@idConta", remetente);
+                cmd.Parameters.AddWithValue("@valor", valor);
+
+                cmd.ExecuteNonQuery();
+
+                //Adicionando o valor a conta do destinatario
+                cmd.CommandText = "update dbo.contas set saldo += @valor where codConta = @idConta";
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@idConta", destinatario);
+                cmd.Parameters.AddWithValue("@valor", valor);
+
+                cmd.ExecuteNonQuery();
+            }
+
+            conexao.conexao.Desconectar();
         }
     }
 
@@ -97,12 +137,18 @@ namespace SistemaBanco
             ContaBancaria Usuario = new ContaBancaria();
 
             //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
-            Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>();
+            Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
+            {
+                { "deposito", (p) => depositar(p) },
+                { "saque", (p) => sacar(p) },
+                { "extrato", (p) => gerarExtrato(p) },
+                { "sair", (p) => sair(p) }
+            };
 
-            operacoes.Add("deposito", (p) => depositar(p));
-            operacoes.Add("saque", (p) => sacar(p));
-            operacoes.Add("extrato", (p) => gerarExtrato(p));
-            operacoes.Add("sair", (p) => sair(p));
+            //operacoes.Add("deposito", (p) => depositar(p));
+            //operacoes.Add("saque", (p) => sacar(p));
+            //operacoes.Add("extrato", (p) => gerarExtrato(p));
+            //operacoes.Add("sair", (p) => sair(p));
 
             Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
 
@@ -207,7 +253,8 @@ namespace SistemaBanco
             do
             {
                 resp = Console.ReadLine();
-                isValid = decimal.TryParse(resp, out valDeposito);
+                isValid = decimal.TryParse(resp, out valDeposito) && valDeposito >= 0? true : false;
+
                 if (isValid == false) { Console.Write("\nValor invalido!\nDigite novamente: "); }
             } while (isValid == false);
 
@@ -253,6 +300,7 @@ namespace SistemaBanco
             do
             {
                 resp = Console.ReadLine();
+            //Verifica se essa conta já possui senha, se nao,a senha q o usuario digitar será a nova senha
                 if (Usuario.acessSenha(resp)) 
                 {
                     Console.WriteLine("Sacando dindin");
@@ -270,6 +318,7 @@ namespace SistemaBanco
             return false;
         }
     // </sacar>
+
         static bool gerarExtrato(ContaBancaria Usuario)
         {
             DateTime dataAtual = DateTime.Now;
@@ -310,6 +359,11 @@ namespace SistemaBanco
             xmlDoc.Save(caminhoCompleto);
 
             return false;
+        }
+
+        static void transferencia(ContaBancaria Usuario)
+        {
+
         }
 
         static bool sair(ContaBancaria p)

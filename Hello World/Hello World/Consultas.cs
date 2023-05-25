@@ -3,19 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
+using System.Data;
 
 namespace SistemaBanco
 {
     public class ConsultaSql
     {
-        ConexaoSql conexao = new ConexaoSql();
+        public ConexaoSql conexao = new ConexaoSql();
 
         //Criacao do comando para o sql executar
         SqlCommand cmd = new SqlCommand();
-        public void LerTabela()
+
+        public void LerTabela(string tabela)
         {
             //Criacao do comando para o sql executar
-            cmd.CommandText= "select * from dbo.clientes";
+            cmd.CommandText= $"select * from dbo.{tabela}";
 
             //Atribui o endereco do banco de dados onde serão executados os comandos
             cmd.Connection = conexao.Conectar();
@@ -39,18 +41,52 @@ namespace SistemaBanco
 
         public int RegistrarMov(string idConta, decimal valor, string tipo, string dataHora)
         {
-            int idUsuario = 2;
+            
             //Criacao do comando para o sql executar
-            cmd.CommandText = $"insert into dbo.mov (idConta,dataHora,valor,tipo,idUsuario) values ({idConta},{dataHora},{valor},{tipo},{idUsuario})";
+            cmd.CommandText = "insert into dbo.mov (idConta,dataHora,valor,tipo) values (@idConta,@dataHora,@valor,@tipo)";
 
-            //Atribui o endereco do banco de dados onde serão executados os comandos
-            cmd.Connection = conexao.Conectar();
+            try
+            {
+                cmd.Parameters.Clear();
+                cmd.Parameters.AddWithValue("@idConta", idConta);
+                cmd.Parameters.AddWithValue("@dataHora", dataHora);
+                cmd.Parameters.AddWithValue("@valor", valor);
+                cmd.Parameters.AddWithValue("@tipo", tipo);
 
-            int rows = cmd.ExecuteNonQuery();
+            }
+            catch (Exception exc)
+            {
+                Console.WriteLine(exc.Message);
+                //cmd.Parameters["@idConta"].Value = idConta;
+                //cmd.Parameters["@dataHora"].Value = dataHora;
+                //cmd.Parameters["@valor"].Value = valor;
+                //cmd.Parameters["@tipo"].Value = tipo;
+                
+            }
 
-            conexao.Desconectar();
+            try
+            {
+                //Atribui o endereco do banco de dados onde serão executados os comandos
+                cmd.Connection = conexao.Conectar();
 
-            return rows;
+                int rows = cmd.ExecuteNonQuery();
+
+                conexao.Desconectar();
+
+                return rows;
+            }
+            catch (Exception err)
+            {
+
+                Console.WriteLine(err.Message);
+
+                return 0;
+            }
+        }
+
+        public void Atualizar(string textUpdt)
+        {
+            cmd.CommandText = "update dbo.contas set saldo += @valor where codConta = @idConta";
         }
     }
 }
