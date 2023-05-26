@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using System.Xml;
+using System.Runtime.Remoting.Messaging;
 
 
 //IDEIAS:
@@ -19,6 +20,13 @@ namespace SistemaBanco
     class ContaBancaria
     {
         private ConsultaSql conexao = new ConsultaSql();
+
+        public ContaBancaria(string agencia, string conta)
+        {
+            this.agencia = agencia;
+            this.codConta = conta;
+
+        }
 
         public string codConta;
         
@@ -74,6 +82,11 @@ namespace SistemaBanco
                 this.saldo -= valor;
                 this.historico.Enqueue("-R$" + valor.ToString());
             }
+            else if (string.Equals(tipo, "transferencia", StringComparison.OrdinalIgnoreCase))
+            {
+                this.saldo -= valor;
+                this.historico.Enqueue("-R$" + valor.ToString());
+            }
 
             Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
             
@@ -84,16 +97,19 @@ namespace SistemaBanco
             decimal sqlSaldo = new decimal();
             SqlCommand cmd = new SqlCommand();
             cmd.CommandText = $"select saldo from dbo.contas where codConta={remetente}";
-            conexao.conexao.Conectar();
-
+            cmd.Connection = conexao.conexao.Conectar();
+            
             SqlDataReader reader = cmd.ExecuteReader();
 
             while (reader.Read())
             {
                 sqlSaldo = (decimal)reader.GetSqlMoney(0);
+                Console.WriteLine(sqlSaldo);
             }
 
-            if(sqlSaldo < valor)
+            reader.Close();
+            //sqlSaldo < valor
+            if (false == true)
             {
                 Console.WriteLine("Saldo insuficiente!");
             }
@@ -117,6 +133,8 @@ namespace SistemaBanco
             }
 
             conexao.conexao.Desconectar();
+
+            this.movimentarSaldo("transferencia", valor);
         }
     }
 
@@ -134,14 +152,16 @@ namespace SistemaBanco
 
             string[] opcoes = { "", "Deposito", "Saque", "Transferencia", "Extrato", "Sair" };
 
-            ContaBancaria Usuario = new ContaBancaria();
-
-            //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
+        //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
             Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
             {
                 { "deposito", (p) => depositar(p) },
+                { "depositar", (p) => depositar(p) },
                 { "saque", (p) => sacar(p) },
+                { "sacar", (p) => sacar(p) },
                 { "extrato", (p) => gerarExtrato(p) },
+                { "transferencia", (p) => transferir(p) },
+                { "transferir", (p) => transferir(p) },
                 { "sair", (p) => sair(p) }
             };
 
@@ -151,6 +171,11 @@ namespace SistemaBanco
             //operacoes.Add("sair", (p) => sair(p));
 
             Console.Title = "Interface do Banco"; //Define o texto na barra de cima da janela.
+
+            //Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Você está entrando em nosso sistema de caixa eletrônico\n\nFavor informar o código e a agência de sua conta bancaria:\n");
+            string[] login= entrarConta();
+            ContaBancaria Usuario = new ContaBancaria(login[0], login[1]);
 
             do
             {
@@ -197,16 +222,17 @@ namespace SistemaBanco
 
 
 
-        static void entrarConta(ContaBancaria Usuario)
+        static string[] entrarConta()
         {
             int intAgencia;
             bool? isValid;
             string resp;
+            string[] retorno = new string[2];
 
             Console.WriteLine("Digite as informaçoes da conta:");
 
             //Recebe a resposta do usuario e verifica se é valida
-            Console.Write("Agência: ");
+            Console.Write("\n Agência: ");
             do
             {
                 resp = Console.ReadLine();
@@ -214,10 +240,10 @@ namespace SistemaBanco
                 if (isValid == false) { Console.Write("\nAgência invalida!\nDigite novamente: "); }
             } while (isValid == false);
 
-            Usuario.agencia = intAgencia.ToString();
+            retorno[0] = intAgencia.ToString();
 
             //Recebe o numero da conta
-            Console.Write("Número da conta: ");
+            Console.Write("\n Número da conta: ");
             do
             {
                 isValid = null;
@@ -235,7 +261,9 @@ namespace SistemaBanco
 
             } while (isValid == false);
 
-            Usuario.codConta = resp;
+            retorno[1] = resp;
+
+            return retorno;
         }
 
     //Algoritmo para o usuario realizar o "deposito", recebe como parametro o ponteiro para o local da memoria do objeto passado.
@@ -246,7 +274,7 @@ namespace SistemaBanco
             string resp;
 
             Console.Clear();
-            if (Usuario.codConta == null) { entrarConta(Usuario); }
+            //if (Usuario.codConta == null) { entrarConta(Usuario); }
 
             //Entrada do valor do deposito
             Console.Write("\nInforme o valor que deseja depositar: R$");
@@ -262,6 +290,7 @@ namespace SistemaBanco
             Console.WriteLine($"\n\nDepósito no valor de R${valDeposito} realizado com sucesso na conta {Usuario.codConta}, na agência de nº{Usuario.agencia}");
             Console.Write("Deseja realizar outra operação?[S/N]: ");
 
+            //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
             return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
         }
 
@@ -272,7 +301,7 @@ namespace SistemaBanco
             string resp;
 
             Console.Clear();
-            if (Usuario.codConta == null) { entrarConta(Usuario); }
+            //if (Usuario.codConta == null) { entrarConta(Usuario); }
             
             Console.WriteLine($"Olá dono da conta nº{Usuario.codConta}! Você possui atualmente R${Usuario.saldo} na conta.");
             Console.Write("\nInforme o valor que deseja sacar: R$");
@@ -361,9 +390,64 @@ namespace SistemaBanco
             return false;
         }
 
-        static void transferencia(ContaBancaria Usuario)
+        static bool transferir(ContaBancaria Usuario)
         {
 
+            decimal valSaque;
+            bool? isValid;
+            string resp;
+            string destino;
+
+            Console.Clear();
+            if (Usuario.codConta == null) { entrarConta(); }
+
+            Console.WriteLine("Transferencia via TED");
+
+            Console.WriteLine($"Olá dono da conta nº{Usuario.codConta}! Você possui atualmente R${Usuario.saldo} na conta.");
+            Console.Write("\nDigite o valor que deseja transferir: R$");
+            do
+            {
+                resp = Console.ReadLine();
+                isValid = decimal.TryParse(resp, out valSaque);
+                if (isValid == false) { Console.Write("\nValor invalido!\nDigite novamente: "); }
+                else
+                {
+                    //Verifica se o usuario tem o saldo suficiente para sacar
+                    if (valSaque > Usuario.saldo)
+                    {
+                        Console.Write("Você não possui esse dinheiro em sua conta! Digite um valor valido: R$");
+                        //Console.Write("Deseja solicitar um emprestimo?");
+                        //Console.ReadLine();
+                        isValid = false;
+                    }
+
+                }
+            } while (isValid == false);
+
+            Console.Write("Digite o código da conta que irá receber a transferência: ");
+            destino = Console.ReadLine();
+
+            //Solicitação de senha para retirar dinheiro
+            Console.Write("Digite a senha: ");
+            
+            do
+            {
+                resp = Console.ReadLine();
+                //Verifica se essa conta já possui senha, se nao,a senha q o usuario digitar será a nova senha
+                if (Usuario.acessSenha(resp))
+                {
+                    Console.WriteLine("transferindo dindin");
+                    Usuario.transferirSaldo(Usuario.codConta, valSaque, destino);
+                    isValid = true;
+                }
+                else
+                {
+                    Console.Write("senha errada!digite novamente");
+                    isValid = false;
+                }
+            } while (isValid==false);
+
+            return true;
         }
 
         static bool sair(ContaBancaria p)
