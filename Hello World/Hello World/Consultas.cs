@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 using System.Data;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SistemaBanco
 {
@@ -14,10 +15,20 @@ namespace SistemaBanco
         //Criacao do comando para o sql executar
         SqlCommand cmd = new SqlCommand();
 
-        public void LerTabela(string tabela)
+        class LinhaContas
         {
+            public string codConta;
+            public string senha;
+            public decimal saldo;
+            public int tipo;
+            public int idUsuario;
+        }
+
+        public void LerTabela(string paramConta, out decimal saldo)
+        {
+            saldo = 0;
             //Criacao do comando para o sql executar
-            cmd.CommandText= $"select * from dbo.{tabela}";
+            cmd.CommandText= $"select * from dbo.contas where codConta={paramConta}";
 
             //Atribui o endereco do banco de dados onde serão executados os comandos
             cmd.Connection = conexao.Conectar();
@@ -25,13 +36,17 @@ namespace SistemaBanco
             //Executar comando retornando valor
             SqlDataReader reader = cmd.ExecuteReader();
 
-            //Imprime os valores de cada linha
-            while (reader.Read())
-            {
-                int id = reader.GetInt32(0);
-                string nome = reader.GetString(1);
+            //Cria uma nova instancia do objeto que ira receber os valores presentes em uma das linhas da tabela
+            var dadosConta = new LinhaContas();
 
-                Console.WriteLine(id + "" + nome);
+            //Atribui os valores de cada linha
+            while (reader.Read())
+            { 
+                //codConta = reader.GetString(0);
+                //dadosConta.senha = reader.GetString(1);
+                saldo = (decimal)reader.GetSqlMoney(2);
+                //tipo = reader.GetInt32(3);
+                //idUsuario = reader.GetInt32(4);
             }
 
             reader.Close();

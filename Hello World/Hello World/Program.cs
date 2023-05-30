@@ -12,8 +12,10 @@ using System.Runtime.Remoting.Messaging;
 
 //IDEIAS:
 //  X-Fazer com o que o valor da propriedade Informacoes.saldo só possa ser alterado através de um metodo do objeto, que receberá a senha digitada e valor a ser retirado. Se a senha for autentica, acessa e modifica o valor do saldo;
-//  -Salvar as informações de usuarios cadastrados e sua movimentações em tabelas num banco de dados;
+//  X-Salvar as informações de usuarios cadastrados e sua movimentações em tabelas num banco de dados;
 //  X-Gerar um arquivo como relatório do extrato bancario;
+// -Função que ao gerar a nota de extrato, abre e mostra a janela do arquivo (no navegador)
+// 
 
 namespace SistemaBanco
 {
@@ -25,14 +27,20 @@ namespace SistemaBanco
         {
             this.agencia = agencia;
             this.codConta = conta;
+            decimal saldoTemp;
 
+            conexao.LerTabela(this.codConta, out saldoTemp);
+
+            saldo = saldoTemp;
         }
 
         public string codConta;
         
         public string agencia;
 
-        public decimal saldo { get; private set; } //Esta proprieda pode ser acessada fora da classe, mas só pode ser modificada por metodos de dentro da classe;
+        public int tipo;
+
+        public decimal saldo { get; private set; } //Esta propriedade pode ser acessada fora da classe, mas só pode ser modificada por metodos de dentro da classe;
 
         private string senha;
 
@@ -76,6 +84,7 @@ namespace SistemaBanco
             {
                 this.saldo += valor;
                 this.historico.Enqueue("+R$" + valor.ToString());
+                //conexao.Atualizar();
             }
             else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase))
             {
@@ -87,6 +96,7 @@ namespace SistemaBanco
                 this.saldo -= valor;
                 this.historico.Enqueue("-R$" + valor.ToString());
             }
+
 
             Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
             
@@ -109,7 +119,7 @@ namespace SistemaBanco
 
             reader.Close();
             //sqlSaldo < valor
-            if (false == true)
+            if (sqlSaldo < valor)
             {
                 Console.WriteLine("Saldo insuficiente!");
             }
@@ -131,7 +141,7 @@ namespace SistemaBanco
 
                 cmd.ExecuteNonQuery();
             }
-
+            
             conexao.conexao.Desconectar();
 
             this.movimentarSaldo("transferencia", valor);
@@ -140,13 +150,13 @@ namespace SistemaBanco
 
     class Program
     {
-
+        
         //enum Opcao {Jogar=1, Rank, Créditos, Sair }
         static bool encerrar = false;
 
         static void Main(string[] args)
         {
-
+            
             //ConsultaSql test = new ConsultaSql();
             //test.LerTabela();
 
