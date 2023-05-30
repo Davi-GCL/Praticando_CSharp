@@ -4,7 +4,7 @@ using System.Data.SqlTypes;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.IO;
 using System.Xml;
 using System.Runtime.Remoting.Messaging;
@@ -14,8 +14,8 @@ using System.Runtime.Remoting.Messaging;
 //  X-Fazer com o que o valor da propriedade Informacoes.saldo só possa ser alterado através de um metodo do objeto, que receberá a senha digitada e valor a ser retirado. Se a senha for autentica, acessa e modifica o valor do saldo;
 //  X-Salvar as informações de usuarios cadastrados e sua movimentações em tabelas num banco de dados;
 //  X-Gerar um arquivo como relatório do extrato bancario;
-// -Função que ao gerar a nota de extrato, abre e mostra a janela do arquivo (no navegador)
-// 
+//  X-Função que ao gerar a nota de extrato, abre e mostra a janela do arquivo (no navegador)
+// -Ajustar a coluna de data 
 
 namespace SistemaBanco
 {
@@ -30,7 +30,7 @@ namespace SistemaBanco
             decimal saldoTemp;
 
             conexao.LerTabela(this.codConta, out saldoTemp);
-
+            Console.ReadLine();
             saldo = saldoTemp;
         }
 
@@ -60,36 +60,21 @@ namespace SistemaBanco
             }
         }
 
-        /*public void movimentarSaldo(string tipo, decimal valor)
-        {
-
-            if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
-            {
-                this.saldo += valor;
-                this.historico.Enqueue("+R$" + valor.ToString());
-            }
-            else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase)) 
-            {
-                this.saldo -= valor;
-                this.historico.Enqueue("-R$" + valor.ToString());
-            }
-
-        }*/
-
-        //Sobrecarga do metodo de movimentar saldo que atualiza o registro no banco de dados
+        //Metodo de movimentar saldo que atualiza o registro no banco de dados
         public void movimentarSaldo(string tipo, decimal valor)
         {
-
+            conexao.LerTabelaMov(this.codConta);
             if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
             {
                 this.saldo += valor;
                 this.historico.Enqueue("+R$" + valor.ToString());
-                //conexao.Atualizar();
+                conexao.AtualizarSaldo(this.codConta,valor);
             }
             else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase))
             {
                 this.saldo -= valor;
                 this.historico.Enqueue("-R$" + valor.ToString());
+                conexao.AtualizarSaldo(this.codConta, (valor * -1));
             }
             else if (string.Equals(tipo, "transferencia", StringComparison.OrdinalIgnoreCase))
             {
@@ -98,53 +83,72 @@ namespace SistemaBanco
             }
 
 
-            Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
-            
+            //Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
+            Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now));
+
         }
+
+    //Sobrecarga do metodo de movimentar saldo que atualiza o registro no banco de dados e realiza transferencia de saldo
+        //public void movimentarSaldo(string tipo, decimal valor , string destinatario )
+        //{
+
+        //    if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        this.saldo += valor;
+        //        this.historico.Enqueue("+R$" + valor.ToString());
+        //        conexao.AtualizarSaldo(this.codConta, valor);
+        //    }
+        //    else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        this.saldo -= valor;
+        //        this.historico.Enqueue("-R$" + valor.ToString());
+        //        conexao.AtualizarSaldo(this.codConta, (valor * -1));
+        //    }
+        //    else if (string.Equals(tipo, "transferencia", StringComparison.OrdinalIgnoreCase))
+        //    {
+        //        this.saldo -= valor;
+        //        this.historico.Enqueue("-R$" + valor.ToString());
+        //    }
+
+
+        //    Console.WriteLine(this.conexao.RegistrarMov(this.codConta, valor, tipo, DateTime.Now.ToString("HH:mm,dd/MM/yy")));
+
+        //}
 
         public void transferirSaldo(string remetente, decimal valor, string destinatario)
         {
-            decimal sqlSaldo = new decimal();
+            //decimal sqlSaldo = new decimal();
             SqlCommand cmd = new SqlCommand();
-            cmd.CommandText = $"select saldo from dbo.contas where codConta={remetente}";
+            //cmd.CommandText = $"select saldo from dbo.contas where codConta={remetente}";
             cmd.Connection = conexao.conexao.Conectar();
             
-            SqlDataReader reader = cmd.ExecuteReader();
+            //SqlDataReader reader = cmd.ExecuteReader();
 
-            while (reader.Read())
-            {
-                sqlSaldo = (decimal)reader.GetSqlMoney(0);
-                Console.WriteLine(sqlSaldo);
-            }
+            //while (reader.Read())
+            //{
+            //    sqlSaldo = (decimal)reader.GetSqlMoney(0);
+            //    Console.WriteLine(sqlSaldo);
+            //}
+            //reader.Close();
 
-            reader.Close();
             //sqlSaldo < valor
-            if (sqlSaldo < valor)
+            if (this.saldo < valor)
             {
                 Console.WriteLine("Saldo insuficiente!");
             }
             else
             {
                 //Retirando o valor da conta do remetente
-                cmd.CommandText = "update dbo.contas set saldo -= @valor where codConta = @idConta";
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@idConta", remetente);
-                cmd.Parameters.AddWithValue("@valor", valor);
-
-                cmd.ExecuteNonQuery();
+                conexao.AtualizarSaldo(remetente, (valor * -1));
 
                 //Adicionando o valor a conta do destinatario
-                cmd.CommandText = "update dbo.contas set saldo += @valor where codConta = @idConta";
-                cmd.Parameters.Clear();
-                cmd.Parameters.AddWithValue("@idConta", destinatario);
-                cmd.Parameters.AddWithValue("@valor", valor);
+                conexao.AtualizarSaldo(destinatario, valor);
 
-                cmd.ExecuteNonQuery();
+                this.movimentarSaldo("transferencia", valor);
             }
             
             conexao.conexao.Desconectar();
 
-            this.movimentarSaldo("transferencia", valor);
         }
     }
 
@@ -184,8 +188,8 @@ namespace SistemaBanco
 
             //Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Você está entrando em nosso sistema de caixa eletrônico\n\nFavor informar o código e a agência de sua conta bancaria:\n");
-            string[] login= entrarConta();
-            ContaBancaria Usuario = new ContaBancaria(login[0], login[1]);
+            ( string agencia , string conta ) = entrarConta();
+            ContaBancaria Usuario = new ContaBancaria(agencia , conta);
 
             do
             {
@@ -232,12 +236,12 @@ namespace SistemaBanco
 
 
 
-        static string[] entrarConta()
+        static (string agencia , string conta) entrarConta()
         {
             int intAgencia;
             bool? isValid;
             string resp;
-            string[] retorno = new string[2];
+            //string[] retorno = new string[2];
 
             Console.WriteLine("Digite as informaçoes da conta:");
 
@@ -250,9 +254,9 @@ namespace SistemaBanco
                 if (isValid == false) { Console.Write("\nAgência invalida!\nDigite novamente: "); }
             } while (isValid == false);
 
-            retorno[0] = intAgencia.ToString();
+            //retorno[0] = intAgencia.ToString();
 
-            //Recebe o numero da conta
+        //Recebe o numero da conta
             Console.Write("\n Número da conta: ");
             do
             {
@@ -271,9 +275,9 @@ namespace SistemaBanco
 
             } while (isValid == false);
 
-            retorno[1] = resp;
+            //retorno[1] = resp;
 
-            return retorno;
+            return (agencia: intAgencia.ToString() , conta:resp);
         }
 
     //Algoritmo para o usuario realizar o "deposito", recebe como parametro o ponteiro para o local da memoria do objeto passado.
@@ -365,7 +369,6 @@ namespace SistemaBanco
             string diretorioAtual = Environment.CurrentDirectory; //Pega o caminho da pasta em que o codigo está sendo executado.
             string caminhoCompleto = Path.Combine(diretorioAtual, nomeArquivo);
 
-
             XmlDocument xmlDoc = new XmlDocument();
 
             xmlDoc.AppendChild(xmlDoc.CreateXmlDeclaration("1.0", "UTF-8", null));
@@ -396,6 +399,11 @@ namespace SistemaBanco
             }
             body.InnerXml += $"<saldoAtual>{Usuario.saldo}</saldoAtual>";
             xmlDoc.Save(caminhoCompleto);
+
+            Console.WriteLine("Gerando o extrato...");
+            Thread.Sleep(2000);
+
+            System.Diagnostics.Process.Start("Chrome", Uri.EscapeDataString(caminhoCompleto));
 
             return false;
         }
