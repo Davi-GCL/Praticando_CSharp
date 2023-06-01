@@ -15,24 +15,33 @@ using System.Runtime.Remoting.Messaging;
 //  X-Salvar as informações de usuarios cadastrados e sua movimentações em tabelas num banco de dados;
 //  X-Gerar um arquivo como relatório do extrato bancario;
 //  X-Função que ao gerar a nota de extrato, abre e mostra a janela do arquivo (no navegador)
-// -Ajustar a coluna de data 
+//  X-Ajustar a coluna de data
+// -Perguntar o periodo de tempo que o extrato irá abrangir
 
 namespace SistemaBanco
 {
+    public class Movs
+    {
+        public DateTime dataHora;
+        public decimal valor;
+        public string tipo;
+    }
+
     class ContaBancaria
     {
-        private ConsultaSql conexao = new ConsultaSql();
-
         public ContaBancaria(string agencia, string conta)
         {
             this.agencia = agencia;
             this.codConta = conta;
-            decimal saldoTemp;
 
-            conexao.LerTabela(this.codConta, out saldoTemp);
+            conexao.LerTabela(this.codConta, out decimal saldoTemp);
             Console.ReadLine();
             saldo = saldoTemp;
+
+            //conexao.LerTabelaMov(this.codConta, ref this.historicoMovs);
         }
+
+        public ConsultaSql conexao = new ConsultaSql();
 
         public string codConta;
         
@@ -44,7 +53,13 @@ namespace SistemaBanco
 
         private string senha;
 
+        public Queue<Movs> historicoMovs = new Queue<Movs>();
         public Queue<string> historico = new Queue<string>();
+
+        public void sincMovs()
+        {
+            conexao.LerTabelaMov(this.codConta, ref this.historicoMovs);
+        }
 
         public bool acessSenha(string param)
         {
@@ -63,23 +78,24 @@ namespace SistemaBanco
         //Metodo de movimentar saldo que atualiza o registro no banco de dados
         public void movimentarSaldo(string tipo, decimal valor)
         {
-            conexao.LerTabelaMov(this.codConta);
             if (string.Equals(tipo, "deposito", StringComparison.OrdinalIgnoreCase))
             {
                 this.saldo += valor;
-                this.historico.Enqueue("+R$" + valor.ToString());
+                //this.historicoMovs.Enqueue(new Movs() { valor = valor, dataHora = DateTime.Now } );
                 conexao.AtualizarSaldo(this.codConta,valor);
             }
             else if (string.Equals(tipo, "saque", StringComparison.OrdinalIgnoreCase))
             {
-                this.saldo -= valor;
-                this.historico.Enqueue("-R$" + valor.ToString());
-                conexao.AtualizarSaldo(this.codConta, (valor * -1));
+                valor = 0m - valor;
+                this.saldo += valor;
+                //this.historicoMovs.Enqueue(new Movs() { valor = valor, dataHora = DateTime.Now });
+                conexao.AtualizarSaldo(this.codConta, valor);
             }
             else if (string.Equals(tipo, "transferencia", StringComparison.OrdinalIgnoreCase))
             {
-                this.saldo -= valor;
-                this.historico.Enqueue("-R$" + valor.ToString());
+                valor = 0m - valor;
+                this.saldo += valor;
+                //this.historicoMovs.Enqueue(new Movs() { valor = valor, dataHora = DateTime.Now });
             }
 
 
@@ -155,7 +171,7 @@ namespace SistemaBanco
     class Program
     {
         
-        //enum Opcao {Jogar=1, Rank, Créditos, Sair }
+        //enum Tipos {Deposito=0, Saque, Transferencia }
         static bool encerrar = false;
 
         static void Main(string[] args)
@@ -164,11 +180,12 @@ namespace SistemaBanco
             //ConsultaSql test = new ConsultaSql();
             //test.LerTabela();
 
-            string[] opcoes = { "", "Deposito", "Saque", "Transferencia", "Extrato", "Sair" };
+            string[] opcoes = { "", "Depósito", "Saque", "Transferência", "Extrato", "Sair" };
 
         //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
             Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
             {
+                { "depósito", (p) => depositar(p) },
                 { "deposito", (p) => depositar(p) },
                 { "depositar", (p) => depositar(p) },
                 { "saque", (p) => sacar(p) },
@@ -307,6 +324,7 @@ namespace SistemaBanco
             //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
             return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
         }
+        //</deposito>
 
         static bool sacar(ContaBancaria Usuario)
         {
@@ -347,7 +365,7 @@ namespace SistemaBanco
                 if (Usuario.acessSenha(resp)) 
                 {
                     Console.WriteLine("Sacando dindin");
-                    Usuario.movimentarSaldo("saque", valSaque);
+                    Usuario.movimentarSaldo("saque",valSaque);
                     isValid = true;
                 }
                 else 
@@ -357,8 +375,8 @@ namespace SistemaBanco
                 }
             } while (isValid==false);
 
-            //Fazer algoritmo para gerar um arquivo de nota 
-            return false;
+            //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
+            return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
         }
     // </sacar>
 
@@ -368,6 +386,8 @@ namespace SistemaBanco
             string nomeArquivo = $"{dataAtual.ToString("dd-MM-yyyy")}_{Usuario.codConta.ToString()}_extrato.xml";
             string diretorioAtual = Environment.CurrentDirectory; //Pega o caminho da pasta em que o codigo está sendo executado.
             string caminhoCompleto = Path.Combine(diretorioAtual, nomeArquivo);
+
+            Usuario.sincMovs();
 
             XmlDocument xmlDoc = new XmlDocument();
 
@@ -392,9 +412,9 @@ namespace SistemaBanco
             body.SetAttribute("DataExped", dataAtual.ToString("dd/MM/yyyy"));
             rootElement.AppendChild(body);
 
-            foreach(string aux in Usuario.historico)
+            foreach(var aux in Usuario.historicoMovs)
             {
-                body.InnerXml += $"<p data=\"{dataAtual.ToString("HH:mm dd/MM")} \">{aux}</p>";
+                body.InnerXml += $"<p data=\"{aux.dataHora} \">{aux.valor}</p>";
                 
             }
             body.InnerXml += $"<saldoAtual>{Usuario.saldo}</saldoAtual>";
@@ -473,5 +493,6 @@ namespace SistemaBanco
             Console.WriteLine("Fechando a interface");
             return true;
         }
+
     }
 }

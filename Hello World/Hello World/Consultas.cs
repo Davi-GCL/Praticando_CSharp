@@ -46,18 +46,10 @@ namespace SistemaBanco
 
         }
 
-        public class Movs
+        public void LerTabelaMov(string paramConta, ref Queue<Movs> fila)
         {
-            DateTime dataHora = new DateTime();
-            decimal valor = new decimal();
-        }
-
-        public void LerTabelaMov(string paramConta)
-        {
-            DateTime dataHora = new DateTime();
+            DateTime datahora = new DateTime();
             decimal saldo = new decimal();
-
-            var fila = new Queue<Movs>();
 
             //Criacao do comando para o sql executar
             cmd.CommandText= $"select * from dbo.mov where idConta={paramConta}";
@@ -68,19 +60,18 @@ namespace SistemaBanco
             //Executar comando retornando valor
             SqlDataReader reader = cmd.ExecuteReader();
 
-            //Cria uma nova instancia do objeto que ira receber os valores presentes em uma das linhas da tabela
-            //var dadosConta = new LinhaContas();
-
             //Atribui os valores de cada linha
             while (reader.Read())
             {
-                dataHora = reader.GetDateTime(2);
+                
+                datahora = reader.GetDateTime(2);
                 saldo = (decimal)reader.GetSqlMoney(3);
+
+                fila.Enqueue(new Movs() { dataHora = datahora, valor = saldo});
             }
-            Console.WriteLine(dataHora);
 
             reader.Close();
-            conexao.Desconectar();
+            conexao.Desconectar(); 
 
         }
 
@@ -176,8 +167,8 @@ namespace SistemaBanco
 
         public void AtualizarSaldo(string codConta, decimal valor)
         {
-            cmd.CommandText = "update dbo.contas set saldo += @valor where codConta = @idConta";
             cmd.Connection = conexao.Conectar();
+            cmd.CommandText = "update dbo.contas set saldo += @valor where codConta = @idConta";
             cmd.Parameters.Clear();
             cmd.Parameters.AddWithValue("@idConta", codConta);
             cmd.Parameters.AddWithValue("@valor", valor);
