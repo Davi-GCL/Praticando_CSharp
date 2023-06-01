@@ -216,16 +216,12 @@ namespace SistemaBanco
                 string opcaoEscolhida = Console.ReadLine();
 
                 //Se o usuario digitar o numero da opcao, tentara passar o numero digitado como indice do vetor opcoes, onde a opcao corresponde esta posicionada
-                try
+                if(string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
+                    ||  string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
+                    || opcoes[ int.Parse(opcaoEscolhida) ] == "Depósito")
                 {
-                    opcaoEscolhida = opcoes[int.Parse(opcaoEscolhida)].ToLower();
-                    Console.WriteLine(opcaoEscolhida);
-                }
-                //Se o usuario digitar o nome da opção(caracteres), a entrada é tratada e posteriormente passada como chave no dictionary
-                catch (Exception ex)
-                {
-                    opcaoEscolhida = opcaoEscolhida.ToLower();
-                }
+                    encerrar = depositar(Usuario);
+                }else if()
 
                 try { encerrar = operacoes[opcaoEscolhida](Usuario); }
                 catch(Exception ERR) { Console.WriteLine("Digite uma opção valida!");
