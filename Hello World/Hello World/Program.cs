@@ -221,12 +221,35 @@ namespace SistemaBanco
                     || opcoes[ int.Parse(opcaoEscolhida) ] == "Depósito")
                 {
                     encerrar = depositar(Usuario);
-                }else if()
-
-                try { encerrar = operacoes[opcaoEscolhida](Usuario); }
-                catch(Exception ERR) { Console.WriteLine("Digite uma opção valida!");
-                    Console.WriteLine(ERR.Message);
                 }
+                else if(string.Equals(opcaoEscolhida, "saque", StringComparison.OrdinalIgnoreCase) == true
+                    ||  string.Equals(opcaoEscolhida, "sacar", StringComparison.OrdinalIgnoreCase) == true
+                    || opcoes[int.Parse(opcaoEscolhida)] == "Saque")
+                {
+                    encerrar = sacar(Usuario);
+                }
+                else if (string.Equals(opcaoEscolhida, "transferência", StringComparison.OrdinalIgnoreCase) == true
+                    ||  string.Equals(opcaoEscolhida, "transferencia", StringComparison.OrdinalIgnoreCase) == true
+                    || opcoes[int.Parse(opcaoEscolhida)] == "Transferência")
+                {
+                    encerrar = transferir(Usuario);
+                }
+                else if (string.Equals(opcaoEscolhida, "extrato", StringComparison.OrdinalIgnoreCase) == true
+                    || opcoes[int.Parse(opcaoEscolhida)] == "Extrato")
+                {
+                    encerrar = gerarExtrato(Usuario);
+                }
+                else if (string.Equals(opcaoEscolhida, "sair", StringComparison.OrdinalIgnoreCase) == true
+                    || opcoes[int.Parse(opcaoEscolhida)] == "Sair")
+                {
+                    encerrar = sair(Usuario);
+                }
+                else
+                {
+                    Console.WriteLine("Digite uma opção valida");
+                    encerrar = false;
+                }
+                
 
                 Console.WriteLine($"Relatorio final: Agência{Usuario.agencia}, Conta{Usuario.codConta}, Saldo{Usuario.saldo}");
 
@@ -325,7 +348,7 @@ namespace SistemaBanco
         static bool sacar(ContaBancaria Usuario)
         {
             decimal valSaque;
-            bool? isValid;
+            bool isValid = false;
             string resp;
 
             Console.Clear();
@@ -378,12 +401,31 @@ namespace SistemaBanco
 
         static bool gerarExtrato(ContaBancaria Usuario)
         {
+            Usuario.sincMovs();
             DateTime dataAtual = DateTime.Now;
             string nomeArquivo = $"{dataAtual.ToString("dd-MM-yyyy")}_{Usuario.codConta.ToString()}_extrato.xml";
             string diretorioAtual = Environment.CurrentDirectory; //Pega o caminho da pasta em que o codigo está sendo executado.
             string caminhoCompleto = Path.Combine(diretorioAtual, nomeArquivo);
+            
+            bool isValid = false;
+            string resp;
 
-            Usuario.sincMovs();
+            //Exige a senha para acessar o extrato
+            Console.Write("Digite a senha: ");
+            do
+            {
+                resp = Console.ReadLine();
+                //Verifica se essa conta já possui senha, se nao,a senha q o usuario digitar será a nova senha
+                if (Usuario.acessSenha(resp))
+                {
+                    isValid = true;
+                }
+                else
+                {
+                    Console.Write("Senha errada! Digite novamente");
+                    isValid = false;
+                }
+            } while (isValid==false);
 
             XmlDocument xmlDoc = new XmlDocument();
 
@@ -408,12 +450,33 @@ namespace SistemaBanco
             body.SetAttribute("DataExped", dataAtual.ToString("dd/MM/yyyy"));
             rootElement.AppendChild(body);
 
-            foreach(var aux in Usuario.historicoMovs)
+            //Pergunta o periodo e verifica se o periodo de tempo informado é valido
+            int inicio, fim;
+            do
             {
-                body.InnerXml += $"<p data=\"{aux.dataHora} \">{aux.valor}</p>";
-                
-            }
-            body.InnerXml += $"<saldoAtual>{Usuario.saldo}</saldoAtual>";
+                Console.Write("Digite o mês de início: ");
+                inicio = int.Parse(Console.ReadLine());
+                Console.Write("Digite o mês de fim: ");
+                fim = int.Parse(Console.ReadLine());
+
+                if (inicio > fim) { isValid=false; Console.WriteLine("\n Periodo invalido! Especifique um periodo valido"); }
+                else { isValid=true; }
+
+            } while (isValid == false);
+
+             foreach (var aux in Usuario.historicoMovs)
+             {
+                DateTime data = aux.dataHora;
+
+                if (data.Month >= inicio && data.Month <= fim)
+                {
+                     body.InnerXml += $"<p data=\"{aux.dataHora} \">{aux.valor}</p>";
+                }
+
+             }
+
+
+            body.InnerXml += $"<SaldoAtual>{Usuario.saldo}</SaldoAtual>";
             xmlDoc.Save(caminhoCompleto);
 
             Console.WriteLine("Gerando o extrato...");
@@ -486,7 +549,7 @@ namespace SistemaBanco
 
         static bool sair(ContaBancaria p)
         {
-            Console.WriteLine("Fechando a interface");
+            Console.WriteLine("Fechando a interface...");
             return true;
         }
 
