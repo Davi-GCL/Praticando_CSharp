@@ -484,7 +484,10 @@ namespace SistemaBanco
 
             System.Diagnostics.Process.Start("Chrome", Uri.EscapeDataString(caminhoCompleto));
 
-            return false;
+            Console.Write("Deseja realizar outra operação?[S/N]: ");
+
+            //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
+            return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
         }
 
         static bool transferir(ContaBancaria Usuario)
@@ -544,7 +547,10 @@ namespace SistemaBanco
                 }
             } while (isValid==false);
 
-            return true;
+            Console.Write("Deseja realizar outra operação?[S/N]: ");
+
+            //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
+            return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
         }
 
         static bool sair(ContaBancaria p)
