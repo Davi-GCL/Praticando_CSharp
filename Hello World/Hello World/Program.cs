@@ -16,7 +16,7 @@ using System.Runtime.Remoting.Messaging;
 //  X-Gerar um arquivo como relatório do extrato bancario;
 //  X-Função que ao gerar a nota de extrato, abre e mostra a janela do arquivo (no navegador)
 //  X-Ajustar a coluna de data
-// -Perguntar o periodo de tempo que o extrato irá abrangir
+//  X-Perguntar o periodo de tempo que o extrato irá abrangir
 
 namespace SistemaBanco
 {
@@ -217,30 +217,30 @@ namespace SistemaBanco
 
                 //Se o usuario digitar o numero da opcao, tentara passar o numero digitado como indice do vetor opcoes, onde a opcao corresponde esta posicionada
                 if(string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
-                    ||  string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
-                    || opcoes[ int.Parse(opcaoEscolhida) ] == "Depósito")
+                    ||  string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Depósito")
                 {
                     encerrar = depositar(Usuario);
                 }
                 else if(string.Equals(opcaoEscolhida, "saque", StringComparison.OrdinalIgnoreCase) == true
                     ||  string.Equals(opcaoEscolhida, "sacar", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Saque")
+                    ||  tryTransformOption(opcaoEscolhida, opcoes) == "Saque")
                 {
                     encerrar = sacar(Usuario);
                 }
                 else if (string.Equals(opcaoEscolhida, "transferência", StringComparison.OrdinalIgnoreCase) == true
                     ||  string.Equals(opcaoEscolhida, "transferencia", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Transferência")
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Transferência")
                 {
                     encerrar = transferir(Usuario);
                 }
                 else if (string.Equals(opcaoEscolhida, "extrato", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Extrato")
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Extrato")
                 {
                     encerrar = gerarExtrato(Usuario);
                 }
                 else if (string.Equals(opcaoEscolhida, "sair", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Sair")
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Sair")
                 {
                     encerrar = sair(Usuario);
                 }
@@ -557,6 +557,23 @@ namespace SistemaBanco
         {
             Console.WriteLine("Fechando a interface...");
             return true;
+        }
+
+        static string tryTransformOption(string op, string[] opArray)
+        {
+            try
+            {
+                return opArray[int.Parse(op)];
+
+            }
+            catch (Exception)
+            {
+
+                return "Error";
+            }
+            
+            
+             
         }
 
     }
