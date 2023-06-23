@@ -7,7 +7,8 @@ using System.Text;
 using System.Threading;
 using System.IO;
 using System.Xml;
-using System.Runtime.Remoting.Messaging;
+using System.Security.Cryptography;
+
 
 
 //IDEIAS:
@@ -34,9 +35,9 @@ namespace SistemaBanco
             this.agencia = agencia;
             this.codConta = conta;
 
-            conexao.LerTabela(this.codConta, out decimal saldoTemp);
+            (this.agencia, this.senhaByte, this.saldo, this.tipo) = conexao.LerTabela(this.codConta);
             Console.ReadLine();
-            saldo = saldoTemp;
+            
 
             //conexao.LerTabelaMov(this.codConta, ref this.historicoMovs);
         }
@@ -51,6 +52,7 @@ namespace SistemaBanco
 
         public decimal saldo { get; private set; } //Esta propriedade pode ser acessada fora da classe, mas só pode ser modificada por metodos de dentro da classe;
 
+        private byte[] senhaByte;
         private string senha;
 
         public Queue<Movs> historicoMovs = new Queue<Movs>();
@@ -63,14 +65,18 @@ namespace SistemaBanco
 
         public bool acessSenha(string param)
         {
-            if (senha == null) 
-            { 
-                senha = param;
+            var sha = SHA256.Create();
+
+            if (senhaByte == null) 
+            {
+                
+                senhaByte = sha.ComputeHash(Encoding.Default.GetBytes(param));
                 return true;
             }
             else
             {
-                if (senha == param) { return true; }
+                Console.WriteLine($"Senha Salva:{senhaByte.GetHashCode()} \nSenha digitada {sha.ComputeHash(Encoding.Default.GetBytes(param)).GetHashCode()}");
+                if (senhaByte == sha.ComputeHash(Encoding.Default.GetBytes(param)) ) { return true; }
                 else { return false; }
             }
         }

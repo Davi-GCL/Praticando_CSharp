@@ -15,9 +15,13 @@ namespace SistemaBanco
         //Criacao do comando para o sql executar
         SqlCommand cmd = new SqlCommand();
 
-        public void LerTabela(string paramConta, out decimal saldo)
+        public (string agencia, byte[] senha, decimal saldo, int tipo) LerTabela(string paramConta)
         {
-            saldo = 0;
+            string agenciaT = "";
+            byte[] senhaT = new byte[100];
+            decimal saldoT = 0;
+            var tipoT = 0;
+
             //Criacao do comando para o sql executar
             cmd.CommandText= $"select * from dbo.contas where codConta={paramConta}";
 
@@ -34,16 +38,17 @@ namespace SistemaBanco
             while (reader.Read())
             {
                 //codConta = reader.GetString(0);
-                //agencia = reader.GetString(1)
-                //senha = reader.GetSqlBinary(2);
-                saldo = (decimal)reader.GetSqlMoney(3);
-                //tipo = reader.GetInt32(3);
+                agenciaT = reader.GetString(1);
+                if (reader.GetSqlBinary(2) != null) senhaT = (byte[])reader.GetSqlBinary(2);
+                saldoT = (decimal)reader.GetSqlMoney(3);
+                tipoT = reader.GetInt32(4);
                 //idUsuario = reader.GetInt32(4);
             }
             //Console.WriteLine(saldo);
             reader.Close();
             conexao.Desconectar();
 
+            return (agencia: agenciaT, senha: senhaT, saldo: saldoT , tipo: tipoT);
         }
 
         public void LerTabelaMov(string paramConta, ref Queue<Movs> fila)
