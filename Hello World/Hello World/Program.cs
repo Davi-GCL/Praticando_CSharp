@@ -16,7 +16,7 @@ using System.Runtime.Remoting.Messaging;
 //  X-Gerar um arquivo como relatório do extrato bancario;
 //  X-Função que ao gerar a nota de extrato, abre e mostra a janela do arquivo (no navegador)
 //  X-Ajustar a coluna de data
-// -Perguntar o periodo de tempo que o extrato irá abrangir
+//  X-Perguntar o periodo de tempo que o extrato irá abrangir
 
 namespace SistemaBanco
 {
@@ -180,21 +180,21 @@ namespace SistemaBanco
             //ConsultaSql test = new ConsultaSql();
             //test.LerTabela();
 
-            string[] opcoes = { "", "Depósito", "Saque", "Transferência", "Extrato", "Sair" };
+            string[] opcoes = { "", "Depósito", "Saque", "Saldo", "Transferência", "Extrato", "Sair" };
 
         //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
-            Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
-            {
-                { "depósito", (p) => depositar(p) },
-                { "deposito", (p) => depositar(p) },
-                { "depositar", (p) => depositar(p) },
-                { "saque", (p) => sacar(p) },
-                { "sacar", (p) => sacar(p) },
-                { "extrato", (p) => gerarExtrato(p) },
-                { "transferencia", (p) => transferir(p) },
-                { "transferir", (p) => transferir(p) },
-                { "sair", (p) => sair(p) }
-            };
+            //Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
+            //{
+            //    { "depósito", (p) => depositar(p) },
+            //    { "deposito", (p) => depositar(p) },
+            //    { "depositar", (p) => depositar(p) },
+            //    { "saque", (p) => sacar(p) },
+            //    { "sacar", (p) => sacar(p) },
+            //    { "extrato", (p) => gerarExtrato(p) },
+            //    { "transferencia", (p) => transferir(p) },
+            //    { "transferir", (p) => transferir(p) },
+            //    { "sair", (p) => sair(p) }
+            //};
 
             //operacoes.Add("deposito", (p) => depositar(p));
             //operacoes.Add("saque", (p) => sacar(p));
@@ -217,30 +217,35 @@ namespace SistemaBanco
 
                 //Se o usuario digitar o numero da opcao, tentara passar o numero digitado como indice do vetor opcoes, onde a opcao corresponde esta posicionada
                 if(string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
-                    ||  string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
-                    || opcoes[ int.Parse(opcaoEscolhida) ] == "Depósito")
+                    ||  string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Depósito")
                 {
                     encerrar = depositar(Usuario);
                 }
                 else if(string.Equals(opcaoEscolhida, "saque", StringComparison.OrdinalIgnoreCase) == true
                     ||  string.Equals(opcaoEscolhida, "sacar", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Saque")
+                    ||  tryTransformOption(opcaoEscolhida, opcoes) == "Saque")
                 {
                     encerrar = sacar(Usuario);
                 }
+                else if(string.Equals(opcaoEscolhida, "saldo", StringComparison.OrdinalIgnoreCase) == true
+                    ||  tryTransformOption(opcaoEscolhida, opcoes) == "Saldo")
+                {
+                    encerrar = exibirSaldo(Usuario);
+                }
                 else if (string.Equals(opcaoEscolhida, "transferência", StringComparison.OrdinalIgnoreCase) == true
                     ||  string.Equals(opcaoEscolhida, "transferencia", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Transferência")
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Transferência")
                 {
                     encerrar = transferir(Usuario);
                 }
                 else if (string.Equals(opcaoEscolhida, "extrato", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Extrato")
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Extrato")
                 {
                     encerrar = gerarExtrato(Usuario);
                 }
                 else if (string.Equals(opcaoEscolhida, "sair", StringComparison.OrdinalIgnoreCase) == true
-                    || opcoes[int.Parse(opcaoEscolhida)] == "Sair")
+                    || tryTransformOption(opcaoEscolhida, opcoes) == "Sair")
                 {
                     encerrar = sair(Usuario);
                 }
@@ -270,8 +275,17 @@ namespace SistemaBanco
             }
         }
 
+        static bool exibirSaldo(ContaBancaria Usuario)
+        {
+            Console.Clear();
+            Console.WriteLine($"A conta de nº {Usuario.codConta} possui um saldo de: R${Usuario.saldo}");
+            Console.ReadLine();
 
+            Console.Write("Deseja realizar outra operação?[S/N]: ");
 
+            //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
+            return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
+        }
         static (string agencia , string conta) entrarConta()
         {
             int intAgencia;
@@ -557,6 +571,23 @@ namespace SistemaBanco
         {
             Console.WriteLine("Fechando a interface...");
             return true;
+        }
+
+        static string tryTransformOption(string op, string[] opArray)
+        {
+            try
+            {
+                return opArray[int.Parse(op)];
+
+            }
+            catch (Exception)
+            {
+
+                return "Error";
+            }
+            
+            
+             
         }
 
     }
