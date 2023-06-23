@@ -180,21 +180,21 @@ namespace SistemaBanco
             //ConsultaSql test = new ConsultaSql();
             //test.LerTabela();
 
-            string[] opcoes = { "", "Depósito", "Saque", "Transferência", "Extrato", "Sair" };
+            string[] opcoes = { "", "Depósito", "Saque", "Saldo", "Transferência", "Extrato", "Sair" };
 
         //Gera uma instancia da estrutura Dict<chave:valor>, onde chave receberá string e valor função que nao recebe e nem retorna valor (Action).
-            Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
-            {
-                { "depósito", (p) => depositar(p) },
-                { "deposito", (p) => depositar(p) },
-                { "depositar", (p) => depositar(p) },
-                { "saque", (p) => sacar(p) },
-                { "sacar", (p) => sacar(p) },
-                { "extrato", (p) => gerarExtrato(p) },
-                { "transferencia", (p) => transferir(p) },
-                { "transferir", (p) => transferir(p) },
-                { "sair", (p) => sair(p) }
-            };
+            //Dictionary<string, Func<ContaBancaria,bool>> operacoes = new Dictionary<string, Func<ContaBancaria, bool>>()
+            //{
+            //    { "depósito", (p) => depositar(p) },
+            //    { "deposito", (p) => depositar(p) },
+            //    { "depositar", (p) => depositar(p) },
+            //    { "saque", (p) => sacar(p) },
+            //    { "sacar", (p) => sacar(p) },
+            //    { "extrato", (p) => gerarExtrato(p) },
+            //    { "transferencia", (p) => transferir(p) },
+            //    { "transferir", (p) => transferir(p) },
+            //    { "sair", (p) => sair(p) }
+            //};
 
             //operacoes.Add("deposito", (p) => depositar(p));
             //operacoes.Add("saque", (p) => sacar(p));
@@ -227,6 +227,11 @@ namespace SistemaBanco
                     ||  tryTransformOption(opcaoEscolhida, opcoes) == "Saque")
                 {
                     encerrar = sacar(Usuario);
+                }
+                else if(string.Equals(opcaoEscolhida, "saldo", StringComparison.OrdinalIgnoreCase) == true
+                    ||  tryTransformOption(opcaoEscolhida, opcoes) == "Saldo")
+                {
+                    encerrar = exibirSaldo(Usuario);
                 }
                 else if (string.Equals(opcaoEscolhida, "transferência", StringComparison.OrdinalIgnoreCase) == true
                     ||  string.Equals(opcaoEscolhida, "transferencia", StringComparison.OrdinalIgnoreCase) == true
@@ -270,8 +275,17 @@ namespace SistemaBanco
             }
         }
 
+        static bool exibirSaldo(ContaBancaria Usuario)
+        {
+            Console.Clear();
+            Console.WriteLine($"A conta de nº {Usuario.codConta} possui um saldo de: R${Usuario.saldo}");
+            Console.ReadLine();
 
+            Console.Write("Deseja realizar outra operação?[S/N]: ");
 
+            //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
+            return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
+        }
         static (string agencia , string conta) entrarConta()
         {
             int intAgencia;
