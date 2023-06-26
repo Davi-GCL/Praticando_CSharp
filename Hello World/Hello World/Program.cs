@@ -217,11 +217,17 @@ namespace SistemaBanco
 
                 //Se o usuario digitar o numero da opcao, tentara passar o numero digitado como indice do vetor opcoes, onde a opcao corresponde esta posicionada
                 if(string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
-                    ||  string.Equals(opcaoEscolhida, "depósito", StringComparison.OrdinalIgnoreCase) == true 
+                    ||  string.Equals(opcaoEscolhida, "deposito", StringComparison.OrdinalIgnoreCase) == true 
                     || opcoes[ int.Parse(opcaoEscolhida) ] == "Depósito")
                 {
                     encerrar = depositar(Usuario);
-                }else if()
+                }
+                else if(string.Equals(opcaoEscolhida, "saque", StringComparison.OrdinalIgnoreCase) == true
+                    || string.Equals(opcaoEscolhida, "sacar", StringComparison.OrdinalIgnoreCase) == true
+                    || opcoes[int.Parse(opcaoEscolhida)] == "Saque")
+                {
+                    encerrar = sacar(Usuario);
+                }
 
                 try { encerrar = operacoes[opcaoEscolhida](Usuario); }
                 catch(Exception ERR) { Console.WriteLine("Digite uma opção valida!");
