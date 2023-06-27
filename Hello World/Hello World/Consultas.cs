@@ -15,10 +15,10 @@ namespace SistemaBanco
         //Criacao do comando para o sql executar
         SqlCommand cmd = new SqlCommand();
 
-        public (string agencia, byte[] senha, decimal saldo, int tipo) LerTabela(string paramConta)
+        public (string agencia, string senha, decimal saldo, int tipo) LerTabela(string paramConta)
         {
             string agenciaT = "";
-            byte[] senhaT = new byte[100];
+            string senhaT = "";
             decimal saldoT = 0;
             var tipoT = 0;
 
@@ -38,10 +38,11 @@ namespace SistemaBanco
             while (reader.Read())
             {
                 //codConta = reader.GetString(0);
-                agenciaT = reader.GetString(1);
-                if (reader.GetSqlBinary(2) != null) senhaT = (byte[])reader.GetSqlBinary(2);
+
+                try { agenciaT = reader.GetString(1); } catch(Exception) { }
+                try { senhaT = reader.GetString(2); } catch (Exception) { }
                 saldoT = (decimal)reader.GetSqlMoney(3);
-                tipoT = reader.GetInt32(4);
+                tipoT = (int)reader.GetSqlByte(4);
                 //idUsuario = reader.GetInt32(4);
             }
             //Console.WriteLine(saldo);

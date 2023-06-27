@@ -8,6 +8,7 @@ using System.Threading;
 using System.IO;
 using System.Xml;
 using System.Security.Cryptography;
+using Hello_World;
 
 
 
@@ -35,7 +36,7 @@ namespace SistemaBanco
             this.agencia = agencia;
             this.codConta = conta;
 
-            (this.agencia, this.senhaByte, this.saldo, this.tipo) = conexao.LerTabela(this.codConta);
+            (this.agencia, this.senha, this.saldo, this.tipo) = conexao.LerTabela(this.codConta);
             Console.ReadLine();
             
 
@@ -67,16 +68,16 @@ namespace SistemaBanco
         {
             var sha = SHA256.Create();
 
-            if (senhaByte == null) 
+            if (senha == null) 
             {
-                
-                senhaByte = sha.ComputeHash(Encoding.Default.GetBytes(param));
+
+                senha = param.GerarHash();
                 return true;
             }
             else
             {
-                Console.WriteLine($"Senha Salva:{senhaByte.GetHashCode()} \nSenha digitada {sha.ComputeHash(Encoding.Default.GetBytes(param)).GetHashCode()}");
-                if (senhaByte == sha.ComputeHash(Encoding.Default.GetBytes(param)) ) { return true; }
+                //Console.WriteLine($"Senha Salva:{senha} \nSenha digitada: {param.GerarHash()}");
+                if (senha == param.GerarHash() ) { return true; }
                 else { return false; }
             }
         }
