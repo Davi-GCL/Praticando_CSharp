@@ -2,8 +2,7 @@
   "ExpandedNodes": [
     "",
     "\\Hello World",
-    "\\Hello World\\Hello World",
-    "\\Hello World\\testeBancoSql"
+    "\\Hello World\\Hello World"
   ],
   "SelectedNode": "\\Hello World\\Hello World\\Program.cs",
   "PreviewInSolutionExplorer": false
