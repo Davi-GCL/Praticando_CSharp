@@ -36,10 +36,23 @@ namespace SistemaBanco
             this.agencia = agencia;
             this.codConta = conta;
 
-            (this.agencia, this.senha, this.saldo, this.tipo) = conexao.LerTabela(this.codConta);
-            Console.ReadLine();
+            do
+            {
+                try
+                {
+                    (this.agencia, this.senha, this.saldo, this.tipo) = conexao.LerTabela(this.codConta);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine("Digite a conta novamente: ");
+                    this.codConta = Console.ReadLine();
+                    continue;
+                }
+            }while(true);
             
-
+            Console.ReadLine();
             //conexao.LerTabelaMov(this.codConta, ref this.historicoMovs);
         }
 
@@ -381,7 +394,10 @@ namespace SistemaBanco
             {
                 resp = Console.ReadLine();
                 isValid = decimal.TryParse(resp, out valSaque);
-                if (isValid == false) { Console.Write("\nValor invalido!\nDigite novamente: "); }
+                if (isValid == false || valSaque == 0m) {
+                    isValid = false;
+                    Console.Write("\nValor invalido!\nDigite novamente: "); 
+                }
                 else
                 {
                     //Verifica se o usuario tem o saldo suficiente para sacar
@@ -410,7 +426,7 @@ namespace SistemaBanco
                 }
                 else 
                 { 
-                    Console.Write("Senha errada!Digite novamente");
+                    Console.Write("Senha errada!Digite novamente: ");
                     isValid = false;
                 }
             } while (isValid==false);

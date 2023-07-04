@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
-using System.Data;
-using System.Security.Cryptography.X509Certificates;
+
 
 namespace SistemaBanco
 {
@@ -31,13 +29,20 @@ namespace SistemaBanco
             //Executar comando retornando valor
             SqlDataReader reader = cmd.ExecuteReader();
 
+            if(reader.HasRows == false)
+            {
+                reader.Close();
+                conexao.Desconectar();
+                throw new ArgumentException("Conta inexistente");
+            }
+
             //Cria uma nova instancia do objeto que ira receber os valores presentes em uma das linhas da tabela
             //var dadosConta = new LinhaContas();
 
             //Atribui os valores de cada linha
             while (reader.Read())
             {
-                //codConta = reader.GetString(0);
+                
 
                 try { agenciaT = reader.GetString(1); } catch(Exception) { }
                 try { senhaT = reader.GetString(2); } catch (Exception) { }

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Cabecalho>
+    <Conta>123456</Conta>
+    <Agencia>0001</Agencia>
+  </Cabecalho>
+  <Transacoes DataExped="04/07/2023">
+    <p data="04/07/2023 14:33:05 ">-10,0000</p>
+    <SaldoAtual>190,0000</SaldoAtual>
+  </Transacoes>
+</xml>
