@@ -11,7 +11,7 @@ namespace SistemaBanco
         SqlConnection conn = new SqlConnection();
         public ConexaoSql()
         {
-            conn.ConnectionString = @"Data Source=LUNA-PC\SQLEXPRESS;Initial Catalog=sistema_banco;Persist Security Info=True;User ID=sa;Password=root";
+            conn.ConnectionString = $"Data Source={Environment.MachineName}\\SQLEXPRESS;Initial Catalog=sistema_banco;Persist Security Info=True;User ID=sa;Password=root";
         }
 
         public SqlConnection Conectar()

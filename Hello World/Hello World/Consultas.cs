@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
-using System.Data;
-using System.Security.Cryptography.X509Certificates;
+
 
 namespace SistemaBanco
 {
@@ -15,10 +13,10 @@ namespace SistemaBanco
         //Criacao do comando para o sql executar
         SqlCommand cmd = new SqlCommand();
 
-        public (string agencia, byte[] senha, decimal saldo, int tipo) LerTabela(string paramConta)
+        public (string agencia, string senha, decimal saldo, int tipo) LerTabela(string paramConta)
         {
             string agenciaT = "";
-            byte[] senhaT = new byte[100];
+            string senhaT = "";
             decimal saldoT = 0;
             var tipoT = 0;
 
@@ -31,16 +29,23 @@ namespace SistemaBanco
             //Executar comando retornando valor
             SqlDataReader reader = cmd.ExecuteReader();
 
+            if(reader.HasRows == false)
+            {
+                reader.Close();
+                conexao.Desconectar();
+                throw new ArgumentException("Conta inexistente");
+            }
+
             //Cria uma nova instancia do objeto que ira receber os valores presentes em uma das linhas da tabela
             //var dadosConta = new LinhaContas();
 
             //Atribui os valores de cada linha
             while (reader.Read())
             {
-                //codConta = reader.GetString(0);
+                
 
                 try { agenciaT = reader.GetString(1); } catch(Exception) { }
-                try { senhaT = (byte[])reader.GetSqlBinary(2); } catch (Exception) { }
+                try { senhaT = reader.GetString(2); } catch (Exception) { }
                 saldoT = (decimal)reader.GetSqlMoney(3);
                 tipoT = (int)reader.GetSqlByte(4);
                 //idUsuario = reader.GetInt32(4);
