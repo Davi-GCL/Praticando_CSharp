@@ -284,12 +284,33 @@ namespace SistemaBanco
 
         static bool exibirSaldo(ContaBancaria Usuario)
         {
+            string resp;
+            bool isValid ;
+
+
             Console.Clear();
-            Console.WriteLine($"A conta de nº {Usuario.codConta} possui um saldo de: R${Usuario.saldo}");
+
+        //Solicitação de senha para ver o dinheiro
+            Console.Write("Digite a senha: ");
+            do
+            {
+                resp = Console.ReadLine();
+                //Verifica se essa conta já possui senha, se nao,a senha q o usuario digitar será a nova senha
+                if (Usuario.acessSenha(resp))
+                {
+                    Console.WriteLine($"A conta de nº {Usuario.codConta} possui um saldo de: R${Usuario.saldo}");
+                    isValid = true;
+                }
+                else
+                {
+                    Console.Write("Senha errada!Digite novamente");
+                    isValid = false;
+                }
+            } while (isValid == false);
+
             Console.ReadLine();
 
             Console.Write("Deseja realizar outra operação?[S/N]: ");
-
             //Retorna true para encerrar caso o usuario escolha nao realizar outra operação
             return string.Equals(Console.ReadLine(), "N", StringComparison.OrdinalIgnoreCase);
         }
